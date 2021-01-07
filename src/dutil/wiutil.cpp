@@ -907,7 +907,7 @@ LExit:
 extern "C" BOOL DAPI WiuIsMsiTransactionSupported(
     )
 {
-    return (vpfnMsiBeginTransaction && vpfnMsiEndTransaction) ? TRUE : FALSE;
+    return (vpfnMsiBeginTransaction && vpfnMsiEndTransaction);
 }
 
 extern "C" HRESULT DAPI WiuBeginTransaction(
@@ -915,16 +915,25 @@ extern "C" HRESULT DAPI WiuBeginTransaction(
     __in DWORD dwTransactionAttributes,
     __out MSIHANDLE * phTransactionHandle,
     __out HANDLE * phChangeOfOwnerEvent,
+    __in DWORD dwLogMode,
     __in_z LPCWSTR szLogPath
     )
 {
     HRESULT hr = S_OK;
     DWORD er = ERROR_SUCCESS;
 
-    ExitOnNull((vpfnMsiBeginTransaction && vpfnMsiEndTransaction), hr, E_NOTIMPL, "Msi transactions are not supported");
+    if (!WiuIsMsiTransactionSupported())
+    {
+        ExitOnFailure(hr = E_NOTIMPL, "Msi transactions are not supported");
+    }
 
-    hr = WiuEnableLog(WIU_LOG_DEFAULT | INSTALLLOGMODE_VERBOSE | INSTALLLOGMODE_INSTALLSTART | INSTALLLOGMODE_INSTALLEND, szLogPath, INSTALLLOGATTRIBUTES_APPEND);
-    ExitOnFailure(hr, "Failed to enable logging for rollback boundary");
+    if (dwLogMode == 0)
+    {
+        dwLogMode = WIU_LOG_DEFAULT | INSTALLLOGMODE_VERBOSE;
+    }
+
+    hr = WiuEnableLog(dwLogMode, szLogPath, INSTALLLOGATTRIBUTES_APPEND);
+    ExitOnFailure(hr, "Failed to enable logging for MSI transaction");
 
     er = vpfnMsiBeginTransaction(szName, dwTransactionAttributes, phTransactionHandle, phChangeOfOwnerEvent);
     ExitOnWin32Error(er, hr, "Failed to begin transaction.");
@@ -935,16 +944,25 @@ LExit:
 
 extern "C" HRESULT DAPI WiuEndTransaction(
     __in DWORD dwTransactionState,
+    __in DWORD dwLogMode,
     __in_z LPCWSTR szLogPath
     )
 {
     HRESULT hr = S_OK;
     DWORD er = ERROR_SUCCESS;
 
-    ExitOnNull((vpfnMsiBeginTransaction && vpfnMsiEndTransaction), hr, E_NOTIMPL, "Msi transactions are not supported");
+    if (!WiuIsMsiTransactionSupported())
+    {
+        ExitOnFailure(hr = E_NOTIMPL, "Msi transactions are not supported");
+    }
 
-    hr = WiuEnableLog(WIU_LOG_DEFAULT | INSTALLLOGMODE_VERBOSE | INSTALLLOGMODE_INSTALLSTART | INSTALLLOGMODE_INSTALLEND, szLogPath, INSTALLLOGATTRIBUTES_APPEND);
-    ExitOnFailure(hr, "Failed to enable logging for rollback boundary");
+    if (dwLogMode == 0)
+    {
+        dwLogMode = WIU_LOG_DEFAULT | INSTALLLOGMODE_VERBOSE;
+    }
+
+    hr = WiuEnableLog(dwLogMode, szLogPath, INSTALLLOGATTRIBUTES_APPEND);
+    ExitOnFailure(hr, "Failed to enable logging for MSI transaction");
 
     er = vpfnMsiEndTransaction(dwTransactionState);
     ExitOnWin32Error(er, hr, "Failed to end transaction.");

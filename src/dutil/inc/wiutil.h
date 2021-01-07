@@ -386,10 +386,12 @@ HRESULT DAPI WiuBeginTransaction(
     __in DWORD dwTransactionAttributes,
     __out MSIHANDLE* phTransactionHandle,
     __out HANDLE* phChangeOfOwnerEvent,
+    __in DWORD dwLogMode,
     __in_z LPCWSTR szLogPath
     );
 HRESULT DAPI WiuEndTransaction(
     __in DWORD dwTransactionState,
+    __in DWORD dwLogMode,
     __in_z LPCWSTR szLogPath
     );
 BOOL DAPI WiuIsMsiTransactionSupported(
