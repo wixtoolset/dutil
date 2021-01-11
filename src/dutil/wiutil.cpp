@@ -907,7 +907,7 @@ LExit:
 extern "C" BOOL DAPI WiuIsMsiTransactionSupported(
     )
 {
-    return (vpfnMsiBeginTransaction && vpfnMsiEndTransaction);
+    return vpfnMsiBeginTransaction && vpfnMsiEndTransaction;
 }
 
 extern "C" HRESULT DAPI WiuBeginTransaction(
@@ -925,11 +925,6 @@ extern "C" HRESULT DAPI WiuBeginTransaction(
     if (!WiuIsMsiTransactionSupported())
     {
         ExitOnFailure(hr = E_NOTIMPL, "Msi transactions are not supported");
-    }
-
-    if (dwLogMode == 0)
-    {
-        dwLogMode = WIU_LOG_DEFAULT | INSTALLLOGMODE_VERBOSE;
     }
 
     hr = WiuEnableLog(dwLogMode, szLogPath, INSTALLLOGATTRIBUTES_APPEND);
@@ -954,11 +949,6 @@ extern "C" HRESULT DAPI WiuEndTransaction(
     if (!WiuIsMsiTransactionSupported())
     {
         ExitOnFailure(hr = E_NOTIMPL, "Msi transactions are not supported");
-    }
-
-    if (dwLogMode == 0)
-    {
-        dwLogMode = WIU_LOG_DEFAULT | INSTALLLOGMODE_VERBOSE;
     }
 
     hr = WiuEnableLog(dwLogMode, szLogPath, INSTALLLOGATTRIBUTES_APPEND);
