@@ -65,7 +65,7 @@ extern "C" HRESULT DAPI LocProbeForFile(
     __inout LPWSTR* psczPath
     )
 {
-    return LocProbeForFileEx(wzBasePath, wzLocFileName, wzLanguage, psczPath, FALSE);
+    return LocProbeForFileEx(wzBasePath, wzLocFileName, wzLanguage, psczPath, TRUE);
 }
 
 extern "C" HRESULT DAPI LocProbeForFileEx(
@@ -140,7 +140,7 @@ extern "C" HRESULT DAPI LocProbeForFileEx(
         }
     }
 
-    langid = fUseUILanguage ? ::GetUserDefaultUILanguage() : ::GetUserDefaultLangID();
+    langid = ::GetUserDefaultUILanguage();
 
     hr = StrAllocFormatted(&sczLangIdFile, L"%u\\%ls", langid, wzLocFileName);
     LocExitOnFailure(hr, "Failed to format user langid.");
